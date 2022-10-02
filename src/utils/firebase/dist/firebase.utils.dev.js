@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.signInAuthUserWithEmailAndPassword = exports.createAuthUserWithEmailAndPassword = exports.createUserDocumentFromAuth = exports.db = exports.signInWithGooglePopup = exports.auth = void 0;
+exports.onAuthStateChangedListener = exports.signOutUser = exports.signInAuthUserWithEmailAndPassword = exports.createAuthUserWithEmailAndPassword = exports.createUserDocumentFromAuth = exports.db = exports.signInWithGooglePopup = exports.auth = void 0;
 
 var _app = require("firebase/app");
 
@@ -150,4 +150,16 @@ var signInAuthUserWithEmailAndPassword = function signInAuthUserWithEmailAndPass
 };
 
 exports.signInAuthUserWithEmailAndPassword = signInAuthUserWithEmailAndPassword;
+
+var signOutUser = function signOutUser() {
+  return (0, _auth.signOut)(auth);
+};
+
+exports.signOutUser = signOutUser;
+
+var onAuthStateChangedListener = function onAuthStateChangedListener(callback) {
+  return (0, _auth.onAuthStateChanged)(auth, callback);
+};
+
+exports.onAuthStateChangedListener = onAuthStateChangedListener;
 //# sourceMappingURL=firebase.utils.dev.js.map
