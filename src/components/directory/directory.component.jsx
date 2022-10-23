@@ -1,13 +1,14 @@
-import CategoryItem from "../category-item/category-item.component";
+import DirectoryItem from '../directory-item/directory-item.component';
 import './directory.syles.scss';
-const Directory = ({categories}) => {
-    return (
-    <div className="categories-container">
-        {categories.map(({title,id,imageUrl}) => (
-        <CategoryItem key={id} title={title} imageUrl={imageUrl}/>
-    ))}
+
+const Directory = ({ categories }) => {
+  return (
+    <div className='directory-container'>
+      {categories.map((category) => (
+        <DirectoryItem key={category.id} category={category} />
+      ))}
     </div>
-    )
-}
+  );
+};
 
 export default Directory;
