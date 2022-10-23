@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.onAuthStateChangedListener = exports.signOutUser = exports.signInAuthUserWithEmailAndPassword = exports.createAuthUserWithEmailAndPassword = exports.createUserDocumentFromAuth = exports.db = exports.signInWithGooglePopup = exports.auth = void 0;
+exports.onAuthStateChangedListener = exports.signOutUser = exports.signInAuthUserWithEmailAndPassword = exports.createAuthUserWithEmailAndPassword = exports.createUserDocumentFromAuth = exports.getCategoriesAndDocuments = exports.addCollectionAndDocuments = exports.db = exports.signInWithGooglePopup = exports.auth = void 0;
 
 var _app = require("firebase/app");
 
@@ -42,29 +42,90 @@ exports.signInWithGooglePopup = signInWithGooglePopup;
 var db = (0, _firestore.getFirestore)();
 exports.db = db;
 
-var createUserDocumentFromAuth = function createUserDocumentFromAuth(userAuth, additionalInformation) {
-  var userDocRef, userSnapshot, displayName, email, createdAt;
-  return regeneratorRuntime.async(function createUserDocumentFromAuth$(_context) {
+var addCollectionAndDocuments = function addCollectionAndDocuments(collectionKey, objectsToAdd) {
+  var collectionRef, batch;
+  return regeneratorRuntime.async(function addCollectionAndDocuments$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
+          collectionRef = (0, _firestore.collection)(db, collectionKey);
+          batch = (0, _firestore.writeBatch)(db);
+          objectsToAdd.forEach(function (object) {
+            var docRef = (0, _firestore.doc)(collectionRef, object.title.toLowerCase());
+            batch.set(docRef, object);
+          });
+          _context.next = 5;
+          return regeneratorRuntime.awrap(batch.commit());
+
+        case 5:
+          console.log('done');
+
+        case 6:
+        case "end":
+          return _context.stop();
+      }
+    }
+  });
+};
+
+exports.addCollectionAndDocuments = addCollectionAndDocuments;
+
+var getCategoriesAndDocuments = function getCategoriesAndDocuments() {
+  var collectionRef, q, querySnapshot, categoryMap;
+  return regeneratorRuntime.async(function getCategoriesAndDocuments$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          collectionRef = (0, _firestore.collection)(db, 'categories');
+          q = (0, _firestore.query)(collectionRef);
+          _context2.next = 4;
+          return regeneratorRuntime.awrap((0, _firestore.getDocs)(q));
+
+        case 4:
+          querySnapshot = _context2.sent;
+          categoryMap = querySnapshot.docs.reduce(function (acc, docSnapshot) {
+            var _docSnapshot$data = docSnapshot.data(),
+                title = _docSnapshot$data.title,
+                items = _docSnapshot$data.items;
+
+            acc[title.toLowerCase()] = items;
+            return acc;
+          }, {});
+          return _context2.abrupt("return", categoryMap);
+
+        case 7:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  });
+};
+
+exports.getCategoriesAndDocuments = getCategoriesAndDocuments;
+
+var createUserDocumentFromAuth = function createUserDocumentFromAuth(userAuth, additionalInformation) {
+  var userDocRef, userSnapshot, displayName, email, createdAt;
+  return regeneratorRuntime.async(function createUserDocumentFromAuth$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
           userDocRef = (0, _firestore.doc)(db, 'users', userAuth.uid);
           console.log(userDocRef);
-          _context.next = 4;
+          _context3.next = 4;
           return regeneratorRuntime.awrap((0, _firestore.getDoc)(userDocRef));
 
         case 4:
-          userSnapshot = _context.sent;
+          userSnapshot = _context3.sent;
 
           if (userSnapshot.exists()) {
-            _context.next = 16;
+            _context3.next = 16;
             break;
           }
 
           displayName = userAuth.displayName, email = userAuth.email;
           createdAt = new Date();
-          _context.prev = 8;
-          _context.next = 11;
+          _context3.prev = 8;
+          _context3.next = 11;
           return regeneratorRuntime.awrap((0, _firestore.setDoc)(userDocRef, _objectSpread({
             displayName: displayName,
             email: email,
@@ -72,20 +133,20 @@ var createUserDocumentFromAuth = function createUserDocumentFromAuth(userAuth, a
           }, additionalInformation)));
 
         case 11:
-          _context.next = 16;
+          _context3.next = 16;
           break;
 
         case 13:
-          _context.prev = 13;
-          _context.t0 = _context["catch"](8);
-          console.log('error creating the user', _context.t0.message);
+          _context3.prev = 13;
+          _context3.t0 = _context3["catch"](8);
+          console.log('error creating the user', _context3.t0.message);
 
         case 16:
-          return _context.abrupt("return", userDocRef);
+          return _context3.abrupt("return", userDocRef);
 
         case 17:
         case "end":
-          return _context.stop();
+          return _context3.stop();
       }
     }
   }, null, null, [[8, 13]]);
@@ -94,27 +155,27 @@ var createUserDocumentFromAuth = function createUserDocumentFromAuth(userAuth, a
 exports.createUserDocumentFromAuth = createUserDocumentFromAuth;
 
 var createAuthUserWithEmailAndPassword = function createAuthUserWithEmailAndPassword(email, password) {
-  return regeneratorRuntime.async(function createAuthUserWithEmailAndPassword$(_context2) {
+  return regeneratorRuntime.async(function createAuthUserWithEmailAndPassword$(_context4) {
     while (1) {
-      switch (_context2.prev = _context2.next) {
+      switch (_context4.prev = _context4.next) {
         case 0:
           if (!(!email || !password)) {
-            _context2.next = 2;
+            _context4.next = 2;
             break;
           }
 
-          return _context2.abrupt("return");
+          return _context4.abrupt("return");
 
         case 2:
-          _context2.next = 4;
+          _context4.next = 4;
           return regeneratorRuntime.awrap((0, _auth.createUserWithEmailAndPassword)(auth, email, password));
 
         case 4:
-          return _context2.abrupt("return", _context2.sent);
+          return _context4.abrupt("return", _context4.sent);
 
         case 5:
         case "end":
-          return _context2.stop();
+          return _context4.stop();
       }
     }
   });
@@ -123,27 +184,27 @@ var createAuthUserWithEmailAndPassword = function createAuthUserWithEmailAndPass
 exports.createAuthUserWithEmailAndPassword = createAuthUserWithEmailAndPassword;
 
 var signInAuthUserWithEmailAndPassword = function signInAuthUserWithEmailAndPassword(email, password) {
-  return regeneratorRuntime.async(function signInAuthUserWithEmailAndPassword$(_context3) {
+  return regeneratorRuntime.async(function signInAuthUserWithEmailAndPassword$(_context5) {
     while (1) {
-      switch (_context3.prev = _context3.next) {
+      switch (_context5.prev = _context5.next) {
         case 0:
           if (!(!email || !password)) {
-            _context3.next = 2;
+            _context5.next = 2;
             break;
           }
 
-          return _context3.abrupt("return");
+          return _context5.abrupt("return");
 
         case 2:
-          _context3.next = 4;
+          _context5.next = 4;
           return regeneratorRuntime.awrap((0, _auth.signInWithEmailAndPassword)(auth, email, password));
 
         case 4:
-          return _context3.abrupt("return", _context3.sent);
+          return _context5.abrupt("return", _context5.sent);
 
         case 5:
         case "end":
-          return _context3.stop();
+          return _context5.stop();
       }
     }
   });
